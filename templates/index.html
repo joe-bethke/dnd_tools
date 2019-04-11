@@ -1,0 +1,109 @@
+<!doctype html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+<script>
+function roll(start_element, input_class, output_id) {
+    var args = {};
+    var request_inputs = document.getElementsByClassName(input_class);
+    for (var i = 0; i < request_inputs.length; i++) {
+        var input = request_inputs[i];
+        var arg = input.getAttribute('requestarg');
+        if (input.tagName == 'checkbox' || input.tagName == 'radio') {
+            args[arg] = input.checked;
+        }
+        else {
+            args[arg] = input.value;
+        }
+    }
+
+    var url = start_element.getAttribute('requesturl');
+    var output_element = document.getElementById(output_id);
+    $.getJSON(url, args)
+        .done(
+            function(data) {
+                output_element.innerHTML = data.return;
+            }
+        )
+        .fail (
+            function(data) {
+                output_element.innerHTML = "Bad Inputs - A chandelier falls on your character.";
+            }
+        );
+}
+</script>
+
+<body>
+    <table id="check-table">
+        <thead>
+            <th colspan="4">D20 Check</th>
+        </thead>
+        <tbody>
+            <tr>
+                <td>DC:</td>
+                <td><input type="number" class="check-input" requestarg="dc" min="0" step="1" value="0"></td>
+            </tr>
+            <tr>
+                <td>Modifier:</td>
+                <td><input type="number" class="check-input" requestarg="modifier" min="0" step="1" value="0"></td>
+            </tr>
+            <tr>
+                <td>Crits on:</td>
+                <td><input type="number" class="check-input" requestarg="critical" min="0" step="1" max="20" value="20"></td>
+            </tr>
+            <tr>
+                <td><button type="button" onclick="roll(this, 'check-input', 'check-roll')" requesturl="{{ url_for('check') }}">Roll</button></td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <th id="check-roll" colspan="6"></th>
+        </tfoot>
+    </table>
+    <table id="attacks-table">
+        <thead>
+            <th colspan="4">Attack Rolls</th>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Number of Attacks:</td>
+                <td><input type="number" class="attacks-input" requestarg="n_attacks" min="1" step="1" value="1"></td>
+            </tr>
+            <tr>
+                <td>Damage Dice:</td>
+                <td><input type="number" class="attacks-input" requestarg="n_dmg_rollers" min="0" step="1" value="1"></td>
+                <td>D</td>
+                <td><input type="number" class="attacks-input" requestarg="dmg_seed" min="2" step="1" value="4"></td>
+                <td>+</td>
+                <td><input type="number" class="attacks-input" requestarg="dmg_modifier" min="0" step="1" value="0"></td>
+            </tr>
+            <tr>
+                <td>AC:</td>
+                <td><input type="number" class="attacks-input" requestarg="dc" min="0" step="1" value="0"></td>
+            </tr>
+            <tr>
+                <td>Hit Modifier:</td>
+                <td><input type="number" class="attacks-input" requestarg="modifier" min="0" step="1" value="0"></td>
+            </tr>
+            <tr>
+                <td>Crits on:</td>
+                <td><input type="number" class="attacks-input" requestarg="critical" min="0" step="1" max="20" value="20"></td>
+            </tr>
+            <tr>
+                <td>Risk Buffer</td>
+                <td><input type="number" class="attacks-input" requestarg="risk_buffer" min="0" step="1" max="12" value="0"></td>
+            </tr>
+            <tr>
+                <td><button type="button" onclick="roll(this, 'attacks-input', 'attacks-roll')" requesturl="{{ url_for('attacks') }}">Roll</button></td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <th id="attacks-roll" colspan="6"></th>
+        </tfoot>
+    </table>
+</body>
