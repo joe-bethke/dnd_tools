@@ -10,6 +10,8 @@ class Attack:
     def html_attacks(attacks):
         records = [{'Attacker': attacker, 'Roll': roll, 'Damage': damage}
                    for attacker, roll, damage in attacks]
+        if not records:
+            return "No Attacks Landed"
         df = pd.DataFrame.from_records(records, index='Attacker')
         return df.to_html()
 
