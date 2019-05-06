@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 class Attack:
 
     def __init__(self, damage_rollers, damage_modifier=0):
@@ -8,11 +9,16 @@ class Attack:
 
     @staticmethod
     def html_attacks(attacks):
-        records = [{'Attacker': attacker, 'Roll': roll, 'Damage': damage}
-                   for attacker, roll, damage in attacks]
+        records = [{'Attacker': attacker,
+                    'Hit Roll': hit_roll,
+                    'Advantage': adv_roll,
+                    'Damage': damage,
+                    'Hit': hit_type}
+                   for attacker, (hit_roll, adv_roll), damage, hit_type in attacks]
         if not records:
             return "No Attacks Landed"
-        df = pd.DataFrame.from_records(records, index='Attacker')
+        columns = ['Attacker', 'Hit Roll', 'Advantage', 'Damage', 'Hit']
+        df = pd.DataFrame.from_records(records, index='Attacker', columns=columns)
         return df.to_html()
 
     def damage(self, hit_roll, risk_buffer=0):
@@ -30,5 +36,7 @@ class Attack:
     def attacks(self, hit_roller, n_attacks, risk_buffer=0, **hit_check):
         for attack_number in range(1, n_attacks + 1):
             roll, hit = hit_roller.check(**hit_check)
-            if hit or roll == 'nat1':
-                yield (attack_number, roll, self.damage(roll, risk_buffer=risk_buffer))
+            adv_roll, adv_hit = hit_roller.check(**hit_check)
+            if hit or adv_hit or roll == 'nat1':
+                hit_type = "Hit" if hit else "Extra Roll Hit" if adv_hit else "Failure"
+                yield (attack_number, (roll, adv_roll), self.damage(roll, risk_buffer=risk_buffer), hit_type)
